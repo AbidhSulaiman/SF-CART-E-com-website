@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{product.name}}{% endblock %}
+
+{% block content %}
+
+<section class="px-48">
+    <h2 class="py-10 text-blue-900 text-2xl font-bold">{{category.name}}</h2>
+    <div class=" flex gap-10">
+        
+        <div class="flex flex-col gap-4 ml-10">
+            
+            <ul>
+                <li class="font-bold text-xl text-gray-500 border-b-4 mb-3">Categories</li>
+                {% for category in subcategories %}
+                <a href="#" 
+                    hx-get="{% url 'products:productlist_basedon_category' category.id %}" 
+                    hx-target="#subcategory" 
+                    hx-swap="outerHTML">
+                        <div class="text-gray-600 text-md font-serif font-semibold shadow-md px-4 mb-2
+                        hover:scale-105 hover:bg-slate-50">
+                            <li>{{ category.name }}</li>
+                        </div>
+                </a>
+            {% endfor %}
+            </ul>
+        </div>
+        <div class=" ml-24 mt-5">
+            <h1 class="text-xl font-semibold text-gray-500">Products</h1>
+            <!-- for products -->
+            <div class="" id="subcategory">
+                {% if all_products %}
+                <div class="flex flex-wrap gap-4 pt-4">
+                    {% for product in all_products %}
+                    <a href="{% url 'products:product_detail' product.id %}">
+                        <div class="w-48 flex flex-col gap-2 transition ease-in-out delay-150 hover:shadow-md hover:scale-105 duration-200">
+                            {% if product.product_images.first %}
+                            <div class="w-full rounded-md">
+                                <img class="rounded" src="{{product.product_images.first.product_image.url}}" alt="{{product.name}}">
+                            </div>
+                            {% else %}
+                            <p>Image is not available</p>
+                            {% endif %}
+                            <h2>{{product.name|title }}</h2>
+                            <p>{{ product.description|slice:":20" }}...</p>
+                            <p>{{product.price}} INR</p>
+                            <div class="flex gap-2 items-center pt-1">
+                                <h4>Size: </h4>
+                                {% for size in product.available_sizes.all|slice:":3" %}
+                                    <div class="w-8 h-8 border hover:bg-gray-100 flex justify-center items-center">
+                                        <p >{{size.size|title}}</p>
+                                    </div>
+                                {% endfor  %}
+                                ....
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <p>No products available</p>
+                {% endif %}
+        
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

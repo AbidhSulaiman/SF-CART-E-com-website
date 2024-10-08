@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+ {% block title %} My Cart{%endblock %}
+  {% block content%} 
+<h2 class="px-80 text-2xl pt-6 font-semibold text-blu-900">My Cart</h2>
+<section class="flex px-96 py-2">
+  <div class="basis-2/3 ">
+    <div class="my-5 bg-white flex justify-between items-center py-4 shadow-md shadow-gray-200">
+        <p class="ml-2 text-l">From Saved Address</p>
+        <button class="py-2 px-4 border-black text-blue-500">Enter Delivery Pincode</button>
+    </div>
+    {% if cart_items %}
+    <div class="bg-white drop-shadow">
+      {% for items in cart_items %}
+    
+      <div class="flex gap-5 mb-1 p-2 border-b-2 border-gray-100">
+        <a href="{% url 'products:product_detail' items.product.id %}">       
+           <div>
+            <img class=" w-40 m-3rounded" src="{{items.product.product_images.first.product_image.url}}" alt="{{product.name}}">
+        </div>
+      </a>
+      <div class="mt-4">
+        <p class="text-xl">{{ items.product.name|capfirst }}</p>
+        <p class="text-l">&#8377;{{ items.product.price }}</p>
+        <p>Total Price: <span id="total-price-{{ items.id }}">&#8377;{{ items.total_price }}</span></p>
+        <div class="flex gap-3 mt-3 items-center">
+            <p>Quantity :</p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" 
+                class="size-6 cursor-pointer" onclick="changeQuantity('{{ items.id }}', 'decrease')">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+    
+            <span id="quantity-{{ items.id }}">{{ items.quantity }}</span>
+    
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                class="size-6 cursor-pointer" onclick="changeQuantity('{{ items.id }}', 'increase')">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+        </div>
+    </div>
+
+      </div>
+    
+    
+    <div class="flex gap-10 px-20 py-2">
+      <form action="{% url 'cart:delete_cart_item' items.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="text-l text-white bg-red-500 rounded-md py-1 px-10  hover:bg-red-600">
+          Remove
+        </button>
+      </form>
+      <button class="text-l text-white bg-orange-500 rounded-md py-1 px-2  hover:bg-orange-600">Place Order</button>
+    </div>
+
+
+
+    {% endfor %}
+    </div>
+    {% else %}
+    <div class="flex justify-between bg-white py-5 mt-10 px-3 shadow-md">
+      <p>Your Cart Is Empty</p>
+      <a href="{% url 'products:product_main_page' %}"></a>
+      <p class="text-l text-blue-700 hover:bg-text-blue-900 pr-10 cursor-pointer">Continue purchase</p>
+      </a>
+    </div>
+    {% endif %}
+    
+  </div>
+  <div class="basis-1/3 px-4 mt-24 pl-3 ml-8 min-w-[200px] max-w-[350px] max-h-[350px] bg-white shadow-md">
+    <h4 class="text-2xl text-gray-700 font-semibold mt-5 py-2 border-b-2">Price Details</h4>
+    <div class="flex flex-col gap-3 my-5">
+      <div class="flex justify-between">
+        <p class="text-xl">Price({{cart.total_items}})</p>
+        <p class="text-xl">{{cart.total_price}}</p>
+      </div>
+      <div class="flex justify-between">
+        <p class="text-xl">discount</p>
+        <p class="text-xl">00.00</p>
+      </div>
+      <div class="flex justify-between">
+        <p class="text-xl">Delivery Charges</p>
+        <p>-----</p>
+      </div>
+    </div>
+    <div class="flex justify-between py-5 font-bold border-y-2">
+      <p class="text-xl">Total Amount</p>
+      <p class="text-xl">{{cart.total_price}}</p>
+    </div>
+  </div>
+</section> 
+<script>
+  function changeQuantity(itemId, action) {
+      const url = action === 'increase' ? `/cart/increase/${itemId}/` : `/cart/decrease/${itemId}/`;
+      fetch(url, {
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': '{{ csrf_token }}',
+              'Content-Type': 'application/json'
+          },
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.deleted) {
+              // Handle item deletion (optional: remove item from DOM)
+              document.getElementById(`item-row-${itemId}`).remove();
+          } else {
+              // Update the quantity and total price
+              document.getElementById(`quantity-${itemId}`).textContent = data.quantity;
+              document.getElementById(`total-price-${itemId}`).textContent = `₹${data.total_price}`;
+          }
+      })
+      .catch(error => console.error('Error:', error));
+  }
+</script>
+{% endblock %}

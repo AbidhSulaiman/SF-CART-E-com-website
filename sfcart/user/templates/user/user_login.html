@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+    <div class="bg-slate-300">
+        <form action="" method="post">
+            {% csrf_token %}
+            <div>
+                {{ form.non_field_errors }}
+                <div>
+                    {{ form.username.errors }}
+                    <label for="{{ form.username.id_for_label }}">Username: </label>
+                    {{ form.username }}
+                </div>
+                <div>
+                    {{ form.password.errors }}
+                    <label for="{{ form.password.id_for_label }}">Password: </label>
+                    {{ form.password }}
+                </div>
+                <button type="submit">Login</button>
+            </div>
+
+        </form>
+    </div>
+</section>
+{% endblock %}

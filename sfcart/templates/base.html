@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}QuickCart{% endblock %}</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}" />
+  </head>
+  <body>
+
+    <header class="p-3 shadow-md mb-3">
+      {% include "includes/navbar.html" %}
+    </header>
+
+    <main class="min-h-screen bg-gray-50">
+
+      {% block content %} {% endblock%}
+    </main>
+    <footer class="mx-auto w-full p-4 text-center bg-gray-200">
+      <p>@2024 QuickCart inc. All right reserved</p>
+    </footer>
+  </body>
+</html>

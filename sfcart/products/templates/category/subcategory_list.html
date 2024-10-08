@@ -1,0 +1,15 @@
+<section class="mx-10 pt-4 bg-white flex justify-center " id="subcategory-container">
+    <div class="flex flex-col gap-4">
+        {% if subcategories %}
+            <div class="flex flex-wrap gap-4 pt-4 border-t-2">
+                {% for subcategory in subcategories %}
+                    <a href="{% url 'products:category_wise_products' subcategory.id %}" class="text-l font-semibold hover:scale-105 text-gray-500">
+                        {{ subcategory.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500">No subcategories available.</p>
+        {% endif %}
+    </div>
+</section>
