@@ -55,13 +55,53 @@
                 </div>
                 <p class="py-2">Available offers</p>
 
-                <p>0 rating and 0 reviews</p>
+                <p>
+                    {% if review_count > 0 %}
+                        <span class="bg-blue-600 text-white px-2 font-semibold rounded-md">{{ average_rating|floatformat:1 }}</span> rating and {{ review_count }} reviews
+                    {% else %}
+                        No ratings and reviews yet.
+                    {% endif %}
+                </p>
+                
                 <p class="py-2">{{ product.description|capfirst }}</p>
             </div>
 
-            <div class="flex justify-between px-2">
-                <p>Have doubts regarding this product?</p>
-                <p class="px-3 py-1 bg-blue-500 rounded-none text-white">Post Your Question</p>
+            <div class="flex flex-col px-2 border mt-20 gap-5">
+                <div class="flex justify-between px-3">
+                    <h1 class="font-semibold text-xl">Ratings & Reviews</h1>
+                    <a class="px-3 py-1 shadow-md" href="{% url 'products:product_review' product.id %}">Rate Products</a>
+                </div>
+                {% if product.reviews.all %}
+                <div class="mt-6 mx-2 flex flex-col gap-1">
+                    {% for review in product.reviews.all|slice:":3" %}
+                    <div class=" border-b-2 flex flex-col gap-3 py-5">
+
+                        <div class="flex justify-start gap-4">
+                            <div class="flex justify-center items-center rounded-md gap-1 bg-green-700 py-1 px-1">
+                                <p class="text-white">{{review.rating}}</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="size-3">
+                                    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
+                                  </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-700">{{review.review_headline}}</p>
+                            </div>
+                        </div>
+                        <p>{{review.comment}}</p>
+                        <p>{{review.user}}</p>
+                        <p>{{created_at}}</p>
+                    </div>
+
+                    {% endfor %}
+                    <div>
+                        <a href="">See all Reviews</a>
+                    </div>
+                </div>
+                {% else %}
+
+                <p>No reviews and ratings</p>
+
+                {% endif %}
             </div>
         </div>
     </div>

@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from mptt.models import MPTTModel, TreeForeignKey
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from django.contrib.auth.models import User
 
@@ -55,7 +57,30 @@ class Product(models.Model):
     
     def get_discounted_price(self):
         return self.price * (1 - self.discount / 100)
-    
+
+
+# when ever a new product is created corresponding in our update_product_fts tablke instance is create or update for search feature 
+
+@receiver(post_save, sender=Product)
+def update_product_fts(sender, instance, **kwargs):
+    from django.db import connection
+    cursor = connection.cursor()
+
+    # Convert tags to a comma-separated string
+    tags_list = ', '.join([tag.name for tag in instance.tags.all()])
+
+    try:
+        cursor.execute('''
+            INSERT INTO products_product_fts (rowid, name, description, tags) 
+            VALUES (?, ?, ?, ?) 
+            ON CONFLICT(rowid) 
+            DO UPDATE SET name=excluded.name, description=excluded.description, tags=excluded.tags;
+        ''', (instance.pk, instance.name, instance.description, tags_list))
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+
 class ProductImages(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_images')
     product_image = models.ImageField(upload_to='product/product_images', blank=True, null=True)
@@ -67,6 +92,7 @@ class ProductReview(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     rating = models.DecimalField(max_digits=2, decimal_places=1)  # Rating out of 5
+    review_headline = models.CharField(max_length=100, blank=True, null=True)
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,7 +1,10 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Category, Product
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Category, Product, ProductReview
 import random
+from django.contrib import messages
+from django.db import connection
 from django.db.models import Q 
+from django.db.models import Avg
 
 # Create your views here.
 
@@ -42,11 +45,19 @@ def product_detail(request, id):
     random.shuffle(initial_products)
     similar_products = initial_products[:5]
 
+    review_count = product.reviews.count()  # Count of reviews
+    if review_count > 0:
+        average_rating = product.reviews.aggregate(Avg('rating'))['rating__avg']  # Average rating
+    else:
+        average_rating = 0
+
      
     context = {
         'product':product,
         'similar_products':similar_products,
-        "selcted_product_id" : id
+        "selcted_product_id" : id,
+        'review_count': review_count,
+        'average_rating': average_rating,
     }
 
     return render(request, 'category/product_detail.html', context)
@@ -96,3 +107,55 @@ def productlist_basedon_category(request, category_id =None):
         'products':products,
     }
     return render(request, 'category/productlist_basedon_category.html', context)
+
+
+# search view 
+def search_products(request):
+    query = request.GET.get('q')
+    products = Product.objects.all()  # Get all products
+
+    if query:
+        # Filter products by name, description, or tags
+        products = products.filter(
+            Q(name__icontains=query) |  # Use Q directly
+            Q(description__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()  # Use distinct to avoid duplicates if a product has multiple tags
+
+    context = {
+        'products': products,
+        'query': query,
+    }
+    return render(request, 'category/search_results.html', context)
+
+
+
+def product_review(request, product_id):
+
+    product = get_object_or_404(Product, id=product_id)
+    reviews = product.reviews.order_by('-created_at')
+
+
+
+    if request.method == 'POST':
+        review_headline = request.POST.get('review_headline')
+        comment = request.POST.get('comment')
+        rating = request.POST.get('rating')
+
+        if rating and comment:
+            # Save the review
+            ProductReview.objects.create(
+                product=product,
+                user=request.user,
+                rating=rating,
+                review_headline=review_headline,
+                comment=comment,
+            )
+            messages.success(request, "Thank you for your review!")
+            return redirect('products:product_review', product_id=product_id)
+        else:
+            messages.error(request, "Please fill in all fields.")
+
+    
+    context = {'product':product, 'reviews': reviews}
+    return render(request, 'category/product_reviews.html', context)

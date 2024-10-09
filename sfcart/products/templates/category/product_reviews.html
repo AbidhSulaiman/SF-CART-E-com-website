@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+
+
+<h1 class="mx-64 text-xl font-bold text-gray-700 pt-10">Reviews and Ratings</h1>
+<section class="flex mx-64 mt-10">
+    <div class="basis-1/4">
+        <div class=" flex flex-col gap-3 p-10 ml-5">
+            <img class="rounded w-52 " src="{{product.product_images.first.product_image.url}}" alt="{{product.name}}">
+            <p class="text-l font-semibold text-gray-600">{{product.name|title}}</p>
+        </div>
+
+    </div>
+    <div class="basis-3/4">
+        <div>
+            <p class="text-2xl font-semibold text-gray-600">{{product.name|title}}</p>
+            <p class="text-xl mt-8 font-semibold">All Reviews</p>
+            <div class=" mb-10">
+                <h2>Write your review</h2>
+                <form action="{% url 'products:product_review' product.id %}" method="post">
+                    {% csrf_token %}
+                   <div class="flex flex-col gap-6 border-4 py-3 px-1">
+                        <div class="flex gap-5">
+                            <div >
+                                <label for="review_headline">Review Headline: </label>
+                                <input class="bg-slate-100" type="text" name="review_headline" id="review_headline">
+                            </div>
+
+                            <div class="ml-10">
+                                <label for="rating">Your Rating: </label>
+                                <input class="bg-slate-100" type="number" name="rating" id="rating" step="0.1" min="0" max="5">
+                            </div>
+                        </div>
+                    
+                        <div class="flex gap-3">
+                            <label for="comment">Comment: </label>
+                            <textarea class="w-96 bg-slate-100" name="comment" id="comment" rows="4"></textarea>
+                            
+                        </div>
+                        <button class="px-3 py-2 text-l rounded max-w-[100px] text-center bg-slate-700 text-white " type="submit">Submit</button>
+
+                        
+                   </div>
+                </form>
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %} 
+            </div>
+            {% if product.reviews.all %}
+                <div class="mt-6 mx-2 flex flex-col gap-1">
+                    {% for review in reviews %}
+                    <div class=" border-b-2 flex flex-col gap-3 py-5">
+
+                        <div class="flex justify-start gap-4">
+                            <div class="flex justify-center items-center rounded-md gap-1 bg-green-700 py-1 px-1">
+                                <p class="text-white">{{review.rating}}</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="size-3">
+                                    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
+                                  </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-700">{{review.review_headline}}</p>
+                            </div>
+                        </div>
+                        <p>{{review.comment}}</p>
+                        <p>{{review.user}}</p>
+                        <p>{{review.created_at}}</p>
+                    </div>
+
+                    {% endfor %}
+                </div>
+                {% else %}
+
+                <p>No reviews and ratings</p>
+
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+
+{% endblock %}

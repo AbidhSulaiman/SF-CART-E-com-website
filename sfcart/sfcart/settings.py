@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'user',
     'products',
     'carts',
+    'search',
     # for hierarcical order of product models
     'mptt',
 ]

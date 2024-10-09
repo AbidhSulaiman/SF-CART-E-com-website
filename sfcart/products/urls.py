@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import  product_main, product_detail,subcategories_htmx, category_wise_products, productlist_basedon_category
+from .views import  product_main, product_detail,subcategories_htmx, category_wise_products, productlist_basedon_category, search_products, product_review
+
+
 app_name = 'products'
 
 urlpatterns = [
@@ -8,5 +10,7 @@ urlpatterns = [
     path('category_wise_products/<int:category_id>/',category_wise_products, name = 'category_wise_products'),
     path('subcategories-htmx/<int:category_id>/',subcategories_htmx, name='subcategories_htmx'),
     path('productlist_basedon_category/<int:category_id>/',productlist_basedon_category, name='productlist_basedon_category'),
+    path('search/', search_products, name='search_products'),
+    path('product_review/<int:product_id>/', product_review, name='product_review'),
 
 ]
